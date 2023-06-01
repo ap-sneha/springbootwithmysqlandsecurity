@@ -31,7 +31,7 @@ public class MyController {
 	@PostMapping("/save")
 	public ResponseEntity saveDetails(@RequestBody Emp e) {
 		service.saveEmp(e);
-		
+		System.out.println("Successfully saved the data");
 		return new ResponseEntity<>("successfully saved the data",HttpStatus.CREATED);
 		
 	}
