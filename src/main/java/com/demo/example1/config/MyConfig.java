@@ -3,8 +3,11 @@ package com.demo.example1.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,15 +24,16 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @SuppressWarnings("deprecation")
 @Configuration
+@EnableWebSecurity
 public class MyConfig extends WebSecurityConfigurerAdapter {
 	
 	
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication().withUser("sneha").password("Sneha@12345").roles("ADMIN");
-		auth.inMemoryAuthentication().withUser("sneh").password("pass").roles("manager");
-		
-	}
+//	@Override
+//	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//		auth.inMemoryAuthentication().withUser("sneha").password("Sneha@12345").roles("ADMIN");
+//		auth.inMemoryAuthentication().withUser("sneh").password("pass").roles("manager");
+//		
+//	}
 	
 	/*@Bean
 	@Override
@@ -38,18 +42,36 @@ public class MyConfig extends WebSecurityConfigurerAdapter {
 		users.add(User.withDefaultPasswordEncoder().username("sne").password("pas").roles("Admin").build());
 		return new InMemoryUserDetailsManager(users);
 	}*/
+	@Autowired
+     UserDetailsService userDetailsService;
+	
+	@Bean
+	public AuthenticationProvider authProvider() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setUserDetailsService(userDetailsService);
+		provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+		//provider.setPasswordEncoder(new BCryptPasswordEncoder());
+		return provider;
+	}
+	
+//	@Override
+//	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.userDetailsService(userDetailsService).passwordEncoder(NoOpPasswordEncoder.getInstance());
+//    }
+
 	
 	
 	
 	  @Override
 	  protected void configure(HttpSecurity http) throws Exception {
 	  http.csrf().disable(); 
-	  //http.authorizeRequests().anyRequest().fullyAuthenticated().and().httpBasic();
-	  http.authorizeRequests().antMatchers("/rest/save").hasRole("manager").and().httpBasic(); 
+	  http.authorizeRequests().anyRequest().fullyAuthenticated().and().httpBasic();
+	  //http.authorizeRequests().antMatchers("/rest/save").hasRole("manager").and().httpBasic(); 
 	  }
 	  
-	  @Bean public static NoOpPasswordEncoder passwordEncoder() { return
-	  (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance(); }
+//	  @Bean
+//	  public static NoOpPasswordEncoder passwordEncoder() { return
+//	  (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance(); }
 	 
 	/*@Bean
     public PasswordEncoder passwordEncoder() {
